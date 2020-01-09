@@ -78,7 +78,7 @@ MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network
     for (int n = 0; n < cfg.throughputStreams; n++) {
         MKLDNNGraph::Ptr _graph = std::make_shared<MKLDNNGraph>();
         graphs.push_back(_graph);
-        auto task = std::make_shared<InferenceEngine::Task>([=, &cfg]() {
+       // auto task = std::make_shared<InferenceEngine::Task>([=, &cfg]() {
             _graph->CreateArena(threads_per_stream);
 
             if (bPinningRequested) {
@@ -90,8 +90,8 @@ MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network
             _graph->CreateGraph(static_cast<ICNNNetwork&>(*clonedNetwork), extensionManager, socket);
             if (cfg.throughputStreams > 1)  // for streams, each worker thread has it's own graph
                 MKLDNNPlugin::MultiWorkerTaskExecutor::ptrContext.ptrGraph = _graph;
-        });
-        tasks.push_back(task);
+      //  });
+      //  tasks.push_back(task);
     }
 
     if (cfg.throughputStreams > 1) {
@@ -103,8 +103,8 @@ MKLDNNExecNetwork::MKLDNNExecNetwork(const InferenceEngine::ICNNNetwork &network
             ExecutorManager *executorManager = ExecutorManager::getInstance();
             _taskExecutor = executorManager->getExecutor("CPU");
         }
-        _taskExecutor->startTask(tasks[0]);
-        Task::Status sts = tasks[0]->wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY);
+       // _taskExecutor->startTask(tasks[0]);
+       // Task::Status sts = tasks[0]->wait(InferenceEngine::IInferRequest::WaitMode::RESULT_READY);
     }
     for (auto t : tasks)
         t->checkException();
